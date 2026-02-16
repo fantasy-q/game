@@ -8,6 +8,8 @@ html[data-theme="dark"] body {
 }
 
 header {
+    text-align: center;
+
     & section {
         display: flex;
         justify-content: center;
