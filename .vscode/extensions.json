@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "mechatroner.rainbow-csv"
+        "mechatroner.rainbow-csv",
+        "ritwickdey.liveserver"
     ]
 }

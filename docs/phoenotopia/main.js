@@ -1,85 +1,106 @@
-// 1. 通用的读取函数
-function readCSV(file) {
-    const filename = `data/${file}.csv`
-    return new Promise((resolve, reject) => {
-        Papa.parse(filename, {
-            download: true, // 从服务器下载文件
-            header: true, // 第一行是表头（如 id, name）
-            dynamicTyping: false, // 自动将数字字符串转换为数字类型
-            skipEmptyLines: true,
-            complete: (res) => resolve(res.data),
-            error: (err) => reject(err)
-        });
-    });
-}
+/**
+ * 1. 工具函数提取到外部 (遵循垂直邻近性原则与单一职责原则)
+ * 
+ */
+const buildBiliUrl = (part, time) =>
+    `https://www.bilibili.com/video/BV1V2vvBrEPU/?p=${part}&t=${time}`;
 
-// 2. 主逻辑
+const createRowNode = ({ type, part, time, code, hint }) => {
+    const p = document.createElement('p');
+    p.className = 'area-row';
+
+    const a = document.createElement('a');
+    Object.assign(a, {
+        className: type,
+        href: buildBiliUrl(part, time),
+        target: "_blank",
+        textContent: code
+    });
+
+    const span = document.createElement('span');
+    span.className = "hint";
+    span.textContent = hint;
+
+    p.append(a, span);
+    return p;
+};
+
+/**
+ * 2. 通用的读取函数
+ * 
+ */
+async function readCSV(file) {
+    const url = `data/${file}.csv`;
+    try {
+        const response = await fetch(url);
+        const csvString = await response.text();
+        return { type: file, data: d3.csvParse(csvString) }
+    }
+    catch {
+        console.error("CSV 解析失败，请检查格式:", error);
+        throw error;
+    }
+}
+/**
+ * 3. 主逻辑优化
+ */
 async function loadAndRenderCSVs() {
-    const files = ['heart', 'oxy', 'moon'];
+    const files = ['heart', 'oxygen', 'moon'];
 
     try {
-        const allDataArrays = await Promise.all(files.map(readCSV));
-        const combinedData = allDataArrays.flat();
-        console.debug(combinedData)
+        // 使用 allSettled 提升容错性，单个文件失败不会中断全局渲染 
+        const results = await Promise.allSettled(files.map(readCSV));
 
-        // --- 内存拼接核心逻辑开始 ---
+        // 使用 Map 替代 Object，优化增删性能并防止隐藏类失效 [5]
+        const areaGroups = new Map();
 
-        // 创建一个对象，用来存储每个区域对应的 HTML 字符串
-        // 格式如: { "area1": "<a>...</a>...", "area2": "..." }
-        const areaGroups = {};
-
-        combinedData.forEach(row => {
-            const { part, time, area, code, hint } = row;
-            if (!area) return;
-
-            const url = `https://www.bilibili.com/video/BV1V2vvBrEPU/?p=${part}&t=${time}`
-            const gemType = code.split("_")[0].toLowerCase();
-
-            // 构建当前行的 HTML 模板
-            const linkHtml = `
-                <p>
-                    <a class="${gemType}" href="${url}" target="_blank">
-                        ${code}
-                    </a>
-                    <span class="hint">${hint}</span>
-                </p>`;
-
-            // 如果该 area 还没在对象里，先初始化为空字符串
-            if (!areaGroups[area]) {
-                areaGroups[area] = "";
+        // 单次迭代处理：过滤、注入与分组合并，避免中间数组产生的 GC 压力 
+        for (const result of results) {
+            if (result.status !== 'fulfilled') {
+                console.warn(`文件加载失败:`, result.reason);
+                continue;
             }
 
-            // 累加字符串到对应的区域
-            areaGroups[area] += linkHtml;
-        });
+            const { type, data } = result.value;
+            if (!data) continue;
 
-        // 获取所有的 h3 标签
-        const rbElements = Array.from(document.querySelectorAll('h3.area rb'));
+            for (const row of data) {
+                if (!row.area) continue;
 
-        rbElements.forEach(rb => {
-            const areaName = rb.innerText.trim();
-            // console.dir(rb);
-            // 如果我们的数据里有这个 area 的内容
-            if (areaGroups[areaName]) {
-                // 创建一个容器一次性放入所有该 area 的 HTML
-                const div = document.createElement('div');
-                div.className = "area-content-wrapper";
-                div.innerHTML = areaGroups[areaName];
-                // 插入到 rb 后面
-                rb.closest('h3').insertAdjacentElement('afterend', div);
+                if (!areaGroups.has(row.area)) {
+                    areaGroups.set(row.area, document.createDocumentFragment());
+                }
+
+                // 将 DOM 节点预先挂载到 DocumentFragment 中 [7]
+                areaGroups.get(row.area).append(createRowNode({ ...row, type }));
+            }
+        }
+
+        // 4. 批量渲染逻辑：减少 DOM 查询与重排 [7, 8]
+        // 建议：如果 rb 标签较多，可考虑给 h3 增加统一的 class 如.area-title
+        document.querySelectorAll('h3.area rb').forEach(rb => {
+            const areaName = rb.textContent.trim();
+            const fragment = areaGroups.get(areaName);
+
+            if (fragment) {
+                const wrapper = document.createElement('div');
+                wrapper.className = "area-content-wrapper";
+                wrapper.append(fragment); // 内存碎片一次性进入真实 DOM [9]
+
+                rb.closest('h3').insertAdjacentElement('afterend', wrapper);
+
+                // 使用 Map.delete 进行高效内存回收 [10]
+                areaGroups.delete(areaName);
             }
         });
 
-        console.log("所有数据渲染完毕！");
-
-    } catch (error) {
-        console.error("读取或解析出错:", error);
+    } catch (criticalError) {
+        console.error("系统级核心错误:", criticalError);
     }
 }
 
-loadAndRenderCSVs();
-
 window.onload = () => {
+    loadAndRenderCSVs();
     performFontUpdate(); // 首次扫描
     setupObserver();     // 启动监听
 };
