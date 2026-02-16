@@ -29,11 +29,12 @@ const createRowNode = ({ type, part, time, code, hint }) => {
  * 2. 通用的读取函数
  * 
  */
-async function readCSV(file) {
-  const url = `data/${file}.csv`;
+async function readCSV(url) {
   try {
     const response = await fetch(url);
+    console.debug(response)
     const csvString = await response.text();
+    const file = url.split("/").at(-1).split(".")[0];
     return { type: file, data: d3.csvParse(csvString) }
   }
   catch {
@@ -44,12 +45,11 @@ async function readCSV(file) {
 /**
  * 3. 主逻辑优化
  */
-async function loadAndRenderCSVs() {
-  const files = ['heart', 'oxygen', 'moon'];
-
+async function loadAndRenderCSVs(files, base = '') {
+  const urls = files.map(name => `${base}/${name}.csv`);
   try {
     // 使用 allSettled 提升容错性，单个文件失败不会中断全局渲染 
-    const results = await Promise.allSettled(files.map(readCSV));
+    const results = await Promise.allSettled(urls.map(readCSV));
 
     // 使用 Map 替代 Object，优化增删性能并防止隐藏类失效 [5]
     const areaGroups = new Map();
@@ -98,3 +98,5 @@ async function loadAndRenderCSVs() {
     console.error("系统级核心错误:", criticalError);
   }
 }
+
+window.loadAndRenderCSVs = loadAndRenderCSVs;

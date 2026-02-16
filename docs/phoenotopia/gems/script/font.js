@@ -65,3 +65,6 @@ function setupObserver() {
     subtree: true
   });
 }
+
+window.performFontUpdate = performFontUpdate;
+window.setupObserver = setupObserver;

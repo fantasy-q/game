@@ -74,7 +74,7 @@ p {
             background-color: currentColor;
 
             /* 这是一个标准的链接图标路径 (Link Icon) */
-            mask: url("link.svg") no-repeat center;
+            mask: url("../link.svg") no-repeat center;
 
             mask-size: contain;
             -webkit-mask-size: contain;

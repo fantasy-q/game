@@ -36,13 +36,14 @@ const createLink = (row) => {
 /**
  * 2. 主渲染逻辑
  */
-async function loadAndRenderYaml() {
-  const filename = 'data/content.yml';
+async function loadAndRenderYaml(name, base = '') {
+  const url = `${base}/${name}.yml`;
+
   const main = document.getElementById('main');
   const footer = document.getElementById('footer');
 
   try {
-    const response = await fetch(filename);
+    const response = await fetch(url);
     if (!response.ok) throw new Error(`网络请求失败: ${response.status}`);
 
     const yamlText = await response.text();
@@ -68,11 +69,11 @@ async function loadAndRenderYaml() {
     doc.footer.flatMap(({ a }) => a)
       .map(createLink).forEach(a => footer.appendChild(a))
 
-
-
   } catch (error) {
     // 改进错误反馈机制
     main.innerHTML = `<p class="error">渲染失败: ${error.message}</p>`;
     console.error("YAML 渲染出错:", error);
   }
 }
+
+window.loadAndRenderYaml = loadAndRenderYaml;
