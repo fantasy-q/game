@@ -36,7 +36,7 @@ const createLink = (row) => {
 /**
  * 2. 主渲染逻辑
  */
-async function loadAndRenderYaml(name, base = '') {
+async function loadAndRenderYaml(name, base = '.') {
   const url = `${base}/${name}.yml`;
 
   const main = document.getElementById('main');
@@ -55,6 +55,10 @@ async function loadAndRenderYaml(name, base = '') {
     }
 
     const fragment = document.createDocumentFragment();
+
+    console.debug(doc.main)
+
+
     doc.main.forEach(section => {
       const items = section.h3;
       // 使用防御性编程处理空数据
@@ -66,7 +70,7 @@ async function loadAndRenderYaml(name, base = '') {
     });
     main.appendChild(fragment);
 
-    doc.footer.flatMap(({ a }) => a)
+    doc.footer?.flatMap(({ a }) => a)
       .map(createLink).forEach(a => footer.appendChild(a))
 
   } catch (error) {

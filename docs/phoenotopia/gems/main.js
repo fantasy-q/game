@@ -2,6 +2,7 @@ import './script/yml.js';
 import './script/csv.js';
 import './script/font.js';
 
+console.log("main.js");
 const ymlFile = 'content';
 const csvFiles = ['heart', 'oxygen', 'moon'];
 

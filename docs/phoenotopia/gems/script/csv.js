@@ -45,7 +45,7 @@ async function readCSV(url) {
 /**
  * 3. 主逻辑优化
  */
-async function loadAndRenderCSVs(files, base = '') {
+async function loadAndRenderCSVs(files, base = '.') {
   const urls = files.map(name => `${base}/${name}.csv`);
   try {
     // 使用 allSettled 提升容错性，单个文件失败不会中断全局渲染 

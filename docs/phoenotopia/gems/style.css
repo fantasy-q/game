@@ -97,7 +97,7 @@ footer {
     align-items: center;
 
     & a {
-        text-decoration: none;
+        /* text-decoration: none; */
         font-size: .75em;
     }
 }
