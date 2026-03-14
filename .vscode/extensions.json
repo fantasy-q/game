@@ -1,6 +1,7 @@
 {
-    "recommendations": [
-        "mechatroner.rainbow-csv",
-        "ritwickdey.liveserver"
-    ]
+  "recommendations": [
+    "mechatroner.rainbow-csv",
+    "ritwickdey.liveserver",
+    "esbenp.prettier-vscode"
+  ]
 }

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phoenotopia Gemstones</title>
+    <link rel="icon" href="../gale.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://cdn.jsdelivr.net/npm/tocbot/dist/tocbot.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/tocbot/dist/tocbot.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.global.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <section v-for="(sec, index) in headings" :key="index">
+        <h2 :id="`${index}.${sec[0].rb}`">
+          <ruby><rb>{{sec[0].rb}}</rb><rt>{{sec[0].rt}}</rt></ruby>
+        </h2>
+        <h3 v-for="(h3, index) in sec" :key="index" :id="h3.rb">
+          <ruby><rb>{{h3.rb}}</rb><rt>{{h3.rt}}</rt></ruby>
+        </h3>
+      </section>
+      <main v-for="(type, index) in contents" :key="index">
+        <p v-for="(item, index) in type" :key="index">
+          <a target="_blank" :href="anchor(item.part,item.time)" :class="getPrefixClass(item.text)"
+            >{{item.text}}
+          </a>
+          <span class="hint">{{item.hint}}</span>
+        </p>
+      </main>
+
+      <footer id="footer">
+        <a v-for="(el, index) in footer" :key="index" target="_blank" :href="el.href"
+          >{{el.text}}</a
+        >
+      </footer>
+      <aside class="tocbot"></aside>
+    </div>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

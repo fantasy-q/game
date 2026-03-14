@@ -1,0 +1,150 @@
+html {
+  color-scheme: light dark;
+}
+
+html[data-theme='dark'] body {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+header {
+  text-align: center;
+
+  & section {
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+  }
+}
+
+body {
+  margin: 0 auto;
+  padding: 0 1em;
+  font-family: Montserrat, 'Noto Serif SC', serif;
+}
+
+@media (min-width: 768px) {
+  body {
+    width: 50%;
+  }
+}
+
+h2 {
+  text-align: center;
+
+  &.area {
+    & span {
+      margin: 0 0.25em;
+    }
+  }
+}
+
+h3 {
+  & ruby {
+    ruby-align: center;
+
+    & rt {
+      font-family: Montserrat, monospace;
+    }
+  }
+}
+
+p {
+  white-space: nowrap;
+
+  & a {
+    text-decoration: none;
+    margin-right: 0.5em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2em;
+    line-height: 1;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+
+      /* 使用遮罩技术，背景颜色即为图标颜色 */
+      background-color: currentColor;
+
+      /* 这是一个标准的链接图标路径 (Link Icon) */
+      mask: url('../link.svg') no-repeat center;
+
+      mask-size: contain;
+      -webkit-mask-size: contain;
+    }
+  }
+
+  & span {
+    &.hint {
+      margin-left: 0.5em;
+      font-size: 0.6em;
+      font-weight: 400;
+      font-family: Montserrat, 'Noto Sans SC', Sans;
+    }
+  }
+}
+
+footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  & a {
+    /* text-decoration: none; */
+    font-size: 0.75em;
+  }
+}
+
+.heart {
+  color: red;
+}
+
+.oxygen {
+  color: green;
+}
+
+.moon {
+  color: blue;
+}
+
+@media (max-width: 768px) {
+  .tocbot {
+    display: none; /* 或者隐藏目录 */
+  }
+}
+
+.tocbot {
+  font-size: 0.5em;
+  position: fixed; /* 核心：固定在屏幕上 */
+  left: 0px; /* 距离右边距离 */
+  top: 0px; /* 距离顶部的距离 */
+  max-width: 25%;
+  max-height: calc(100vh-10px);
+  padding-bottom: 0 !important;
+
+  & a {
+    text-decoration: none;
+    height: 100%;
+  }
+
+  /* 核心：超出部分显示滚动条 */
+  overflow-y: auto;
+
+  /* 隐藏滚动条（可选，让界面更清爽） */
+  scrollbar-width: thin; /* Firefox */
+
+  /* Chrome/Safari 隐藏滚动条美化 */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+  & .toc-list {
+    list-style: none; /* 关键：去掉圆点或序号 */
+  }
+}
