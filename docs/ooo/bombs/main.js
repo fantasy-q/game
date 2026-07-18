@@ -12,7 +12,7 @@ const bombs = [
   'Emoji',
   'Hako',
 ];
-const BASE_URL = '/game/asset/Ooo/sprites/sBomb/';
+const BASE_URL = '/game/assets/Ooo/sprites/sBomb/';
 
 // App
 const App = document.querySelector('#app');
